@@ -171,6 +171,18 @@ def index() -> Any:
 
 @app.get("/health")
 def health() -> Any:
+    model_file_exists = bool(resolved_model_path and resolved_model_path.exists())
+    label_file_exists = bool(resolved_label_path and resolved_label_path.exists())
+    model_ready = False
+    load_error = None
+
+    if model_file_exists:
+        try:
+            _load_runtime_artifacts()
+            model_ready = True
+        except Exception as exc:  # noqa: BLE001
+            load_error = str(exc)
+
     return jsonify(
         {
             "status": "ok",
@@ -178,6 +190,10 @@ def health() -> Any:
             "label_path": str(resolved_label_path) if resolved_label_path else None,
             "dataset_path": str(resolved_dataset_path) if resolved_dataset_path else None,
             "model_loaded": pipeline is not None,
+            "model_file_exists": model_file_exists,
+            "label_file_exists": label_file_exists,
+            "model_ready": model_ready,
+            "load_error": load_error,
         }
     )
 

@@ -10,6 +10,8 @@ const FALLBACK_OPTIONS = {
   Ward_Type: [],
 }
 
+const FIXED_AGE_GROUP_OPTIONS = ['0 - 17', '18 - 30', '31 - 60', '61+']
+
 const FALLBACK_CLIMATE = {
   Asia: { avgTempWeekly: 25.0, humidityPct: 76 },
   Europe: { avgTempWeekly: 14.0, humidityPct: 68 },
@@ -98,7 +100,8 @@ function App() {
           Antibiotic_Tested: data.options?.Antibiotic_Tested || [],
           Continent: data.options?.Continent?.length ? data.options.Continent : FALLBACK_OPTIONS.Continent,
           Infection_Source: data.options?.Infection_Source || [],
-          Patient_Age_Group: data.options?.Patient_Age_Group || [],
+          // Keep age groups fixed so frontend does not depend on dataset/options endpoint.
+          Patient_Age_Group: FIXED_AGE_GROUP_OPTIONS,
           Ward_Type: data.options?.Ward_Type || [],
         }
         const nextClimateMap = {
