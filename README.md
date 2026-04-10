@@ -37,9 +37,11 @@ Backend default di `http://127.0.0.1:5000`.
 ### Lokasi file model
 
 `backend/app.py` akan mencari model di urutan ini:
-1. `backend/models/amr_xgb_pipeline.joblib`
-2. `resistDZ/amr_xgb_pipeline.joblib`
+1. `backend/models/amr_hgb_pipeline.joblib`
+2. `resistDZ/amr_hgb_pipeline.joblib`
 3. parent folder dari `resistDZ`
+4. fallback: `amr_light_pipeline.joblib`
+5. fallback: `amr_xgb_pipeline.joblib`
 
 Dan label class di:
 1. `backend/models/amr_label_classes.npy`
@@ -49,10 +51,21 @@ Dan label class di:
 Kalau mau path custom, pakai environment variable:
 
 ```powershell
-$env:MODEL_PATH="C:\\path\\to\\amr_xgb_pipeline.joblib"
+$env:MODEL_PATH="C:\\path\\to\\amr_hgb_pipeline.joblib"
 $env:LABEL_PATH="C:\\path\\to\\amr_label_classes.npy"
 python app.py
 ```
+
+### Deploy backend ke Vercel
+
+Set Root Directory project backend di Vercel ke folder `backend`.
+Konfigurasi `backend/vercel.json` sudah diarahkan langsung ke `app.py` (tanpa wrapper API terpisah).
+
+Cek endpoint setelah deploy:
+- `/`
+- `/health`
+- `/schema`
+- `/predict`
 
 ## 2) Jalankan Frontend Vite
 

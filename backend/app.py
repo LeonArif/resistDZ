@@ -6,7 +6,6 @@ from typing import Any
 
 import joblib
 import numpy as np
-import pandas as pd
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 
@@ -56,12 +55,20 @@ if not resolved_model_path:
         "atau set environment variable MODEL_PATH."
     )
 
-pipeline = joblib.load(resolved_model_path)
+pipeline = None
+label_classes = None
 
-if resolved_label_path:
-    label_classes = np.load(resolved_label_path, allow_pickle=True)
-else:
-    label_classes = None
+
+def _load_runtime_artifacts() -> tuple[Any, np.ndarray | None]:
+    global pipeline, label_classes
+
+    if pipeline is None:
+        pipeline = joblib.load(resolved_model_path)
+
+    if label_classes is None and resolved_label_path and resolved_label_path.exists():
+        label_classes = np.load(resolved_label_path, allow_pickle=True)
+
+    return pipeline, label_classes
 
 
 def _build_dataset_options() -> dict[str, Any]:
@@ -69,6 +76,8 @@ def _build_dataset_options() -> dict[str, Any]:
         return {"options": {}, "climate_by_continent": {}}
 
     try:
+        import pandas as pd
+
         df = pd.read_csv(resolved_dataset_path)
     except Exception:
         return {"options": {}, "climate_by_continent": {}}
@@ -142,6 +151,7 @@ def health() -> Any:
             "model_path": str(resolved_model_path),
             "label_path": str(resolved_label_path) if resolved_label_path else None,
             "dataset_path": str(resolved_dataset_path) if resolved_dataset_path else None,
+            "model_loaded": pipeline is not None,
         }
     )
 
@@ -159,7 +169,8 @@ def options() -> Any:
 
 @app.get("/schema")
 def schema() -> Any:
-    feature_names = getattr(pipeline, "feature_names_in_", None)
+    loaded_pipeline, _ = _load_runtime_artifacts()
+    feature_names = getattr(loaded_pipeline, "feature_names_in_", None)
     return jsonify(
         {
             "features": feature_names.tolist() if feature_names is not None else [],
@@ -193,12 +204,15 @@ def predict() -> Any:
         return jsonify({"error": "Body JSON harus punya key 'inputs' berupa list object."}), 400
 
     try:
+        import pandas as pd
+
+        loaded_pipeline, loaded_label_classes = _load_runtime_artifacts()
         frame = pd.DataFrame(inputs)
-        pred_ids = pipeline.predict(frame)
+        pred_ids = loaded_pipeline.predict(frame)
         pred_ids = np.asarray(pred_ids, dtype=int)
 
-        if label_classes is not None:
-            predictions = [str(label_classes[i]) for i in pred_ids]
+        if loaded_label_classes is not None:
+            predictions = [str(loaded_label_classes[i]) for i in pred_ids]
         else:
             predictions = pred_ids.astype(str).tolist()
 
