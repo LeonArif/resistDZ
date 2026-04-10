@@ -1,5 +1,8 @@
 import { useEffect, useMemo, useState } from 'react'
-import './App.css'
+import NationalDashboard from './pages/NationalDashboard'
+import CityDashboard from './pages/CityDashboard'
+import Simulation from './pages/Simulation'
+import Navbar from './components/Navbar'
 
 const FALLBACK_OPTIONS = {
   Pathogen_Name: [],
@@ -46,6 +49,10 @@ function resolveApiBaseUrl() {
 
 function App() {
   const apiBaseUrl = useMemo(() => resolveApiBaseUrl(), [])
+  const [activeView, setActiveView] = useState('dashboard')
+  const [selectedProvince, setSelectedProvince] = useState('Jawa Barat')
+  const [selectedCity, setSelectedCity] = useState('')
+  const [isCityModalOpen, setIsCityModalOpen] = useState(false)
 
   const [dropdownOptions, setDropdownOptions] = useState(FALLBACK_OPTIONS)
   const [climateMap, setClimateMap] = useState(FALLBACK_CLIMATE)
@@ -63,7 +70,6 @@ function App() {
     Avg_Temp_Weekly: FALLBACK_CLIMATE.Asia.avgTempWeekly,
     Humidity_Pct: FALLBACK_CLIMATE.Asia.humidityPct,
   })
-  const [health, setHealth] = useState(null)
   const [result, setResult] = useState(null)
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
@@ -154,19 +160,6 @@ function App() {
     return ''
   }
 
-  const checkBackend = async () => {
-    setError('')
-    try {
-      const response = await fetch(`${apiBaseUrl}/health`)
-      const data = await response.json()
-      if (!response.ok) throw new Error(data.error || 'Health check gagal')
-      setHealth(data)
-    } catch (err) {
-      setHealth(null)
-      setError(err.message)
-    }
-  }
-
   const runPrediction = async () => {
     setError('')
     setResult(null)
@@ -212,157 +205,70 @@ function App() {
     }
   }
 
+  const cityByProvince = {
+    'Jawa Barat': [
+      'Kota Bandung',
+      'Kabupaten Bandung',
+      'Kota Bogor',
+      'Kota Cimahi',
+      'Kota Purwakarta',
+      'Kota Cirebon',
+      'Kota Garut',
+    ],
+    'Jawa Tengah': ['Kota Semarang', 'Kota Surakarta', 'Kabupaten Banyumas', 'Kota Magelang'],
+    'Jawa Timur': ['Kota Surabaya', 'Kota Malang', 'Kabupaten Sidoarjo', 'Kota Kediri'],
+    DKI: ['Jakarta Selatan', 'Jakarta Timur', 'Jakarta Barat', 'Jakarta Utara'],
+    Banten: ['Kota Tangerang', 'Kota Serang', 'Kabupaten Lebak'],
+  }
+
+  const handleProvinceChange = (provinceName) => {
+    setSelectedProvince(provinceName)
+    setSelectedCity('')
+  }
+
+  const handleCitySelect = (cityName) => {
+    setSelectedCity(cityName)
+    setIsCityModalOpen(false)
+  }
+
+  const activeCities = cityByProvince[selectedProvince] || ['Kota belum tersedia']
+
   return (
-    <main className="app-shell">
-      <section className="hero">
-        <p className="badge">resistDZ · AI Predictor</p>
-        <h1>Frontend React + Backend Flask siap dipakai</h1>
-        <p>
-          Ini UI sementara untuk ngetes endpoint model. Nanti detail desainnya bisa
-          kamu kasih, lalu saya polish full.
-        </p>
-      </section>
+    <main className="min-h-screen bg-[#ececec] text-sm text-slate-900 md:text-base">
+      <Navbar activeView={activeView} onChangeView={setActiveView} />
 
-      <section className="panel">
-        <h2>1) Cek koneksi backend</h2>
-        <button onClick={checkBackend}>Check /health</button>
-        {health && (
-          <pre>{JSON.stringify(health, null, 2)}</pre>
+      <div className="mx-auto max-w-295 px-6 pb-10 md:px-14">
+
+        {activeView === 'simulation' ? (
+          <Simulation
+            apiBaseUrl={apiBaseUrl}
+            formData={formData}
+            updateField={updateField}
+            handleContinentChange={handleContinentChange}
+            dropdownOptions={dropdownOptions}
+            result={result}
+            error={error}
+            isLoading={isLoading}
+            runPrediction={runPrediction}
+          />
+        ) : selectedCity ? (
+          <CityDashboard
+            cityName={selectedCity}
+            provinceName={selectedProvince}
+            onBackToNational={() => setSelectedCity('')}
+          />
+        ) : (
+          <NationalDashboard
+            selectedProvince={selectedProvince}
+            onSelectProvince={handleProvinceChange}
+            onOpenCityModal={() => setIsCityModalOpen(true)}
+            isCityModalOpen={isCityModalOpen}
+            onCloseCityModal={() => setIsCityModalOpen(false)}
+            cityOptions={activeCities}
+            onSelectCity={handleCitySelect}
+          />
         )}
-      </section>
-
-      <section className="panel">
-        <h2>2) Input Data Prediksi</h2>
-        <p className="hint">Hanya Continent dan Patient_Age_Group yang dropdown. Year otomatis dari tahun sekarang, Avg_Temp_Weekly dan Humidity_Pct otomatis dari Continent.</p>
-
-        <div className="form-grid">
-          <label>
-            Pathogen_Name
-            <input
-              type="text"
-              value={formData.Pathogen_Name}
-              onChange={(event) => updateField('Pathogen_Name', event.target.value)}
-              placeholder="Contoh: Staphylococcus aureus"
-            />
-          </label>
-
-          <label>
-            Antibiotic_Tested
-            <input
-              type="text"
-              value={formData.Antibiotic_Tested}
-              onChange={(event) => updateField('Antibiotic_Tested', event.target.value)}
-              placeholder="Contoh: Amikacin"
-            />
-          </label>
-
-          <label>
-            MIC_Value
-            <input
-              type="number"
-              step="any"
-              value={formData.MIC_Value}
-              onChange={(event) => updateField('MIC_Value', event.target.value)}
-              placeholder="Contoh: 4"
-            />
-          </label>
-
-          <label>
-            Continent
-            <select
-              value={formData.Continent}
-              onChange={(event) => handleContinentChange(event.target.value)}
-            >
-              {dropdownOptions.Continent.map((continent) => (
-                <option key={continent} value={continent}>
-                  {continent}
-                </option>
-              ))}
-            </select>
-          </label>
-
-          <label>
-            Infection_Source
-            <input
-              type="text"
-              value={formData.Infection_Source}
-              onChange={(event) => updateField('Infection_Source', event.target.value)}
-              placeholder="Contoh: Respiratory"
-            />
-          </label>
-
-          <label>
-            Patient_Age_Group
-            <select
-              value={formData.Patient_Age_Group}
-              onChange={(event) => updateField('Patient_Age_Group', event.target.value)}
-            >
-              <option value="">Pilih Age Group</option>
-              {dropdownOptions.Patient_Age_Group.map((item) => (
-                <option key={item} value={item}>
-                  {item}
-                </option>
-              ))}
-            </select>
-          </label>
-
-          <label>
-            Ward_Type
-            <input
-              type="text"
-              value={formData.Ward_Type}
-              onChange={(event) => updateField('Ward_Type', event.target.value)}
-              placeholder="Contoh: Medicine ICU"
-            />
-          </label>
-
-          <label>
-            Sanitation_Index
-            <input
-              type="number"
-              step="0.01"
-              min="0"
-              max="1"
-              value={formData.Sanitation_Index}
-              onChange={(event) => updateField('Sanitation_Index', event.target.value)}
-              placeholder="0.00 - 1.00"
-            />
-          </label>
-
-          <label>
-            Year (otomatis)
-            <input type="number" value={formData.Year} readOnly />
-          </label>
-
-          <label>
-            Avg_Temp_Weekly (otomatis)
-            <input type="number" value={formData.Avg_Temp_Weekly} readOnly />
-          </label>
-
-          <label>
-            Humidity_Pct (otomatis)
-            <input type="number" value={formData.Humidity_Pct} readOnly />
-          </label>
-        </div>
-
-        <button onClick={runPrediction} disabled={isLoading}>
-          {isLoading ? 'Memproses...' : 'Kirim ke /predict'}
-        </button>
-        {result && (
-          <pre>{JSON.stringify(result, null, 2)}</pre>
-        )}
-      </section>
-
-      {error && (
-        <section className="panel error">
-          <h2>Error</h2>
-          <p>{error}</p>
-        </section>
-      )}
-
-      <footer>
-        <small>API Base URL: {apiBaseUrl}</small>
-      </footer>
+      </div>
     </main>
   )
 }
