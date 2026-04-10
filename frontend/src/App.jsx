@@ -43,7 +43,7 @@ function resolveApiBaseUrl() {
     return DEFAULT_PROD_API_URL
   }
 
-  return 'http://127.0.0.1:5000'
+  return 'https://resist-dz-9r7m.vercel.app'
 }
 
 function App() {
