@@ -46,17 +46,19 @@ function CityDashboard({ cityName, provinceName, onBackToNational }) {
 				</button>
 			</div>
 
-			<div className="grid items-start gap-4 md:grid-cols-3 lg:grid-cols-[1fr_1fr_1fr_1.85fr]">
+			<div className="grid items-stretch gap-4 md:grid-cols-3 lg:grid-cols-[1fr_1fr_1fr_1.85fr]">
 				{summaryCards.map((card) => (
-					<article key={card.title} className="rounded-xl border border-[#bfbfbf] bg-[#f3f3f3] p-5 shadow-sm">
-						<p className="text-lg font-semibold leading-tight">{card.title}</p>
-						<p className="mt-3 text-4xl font-bold leading-tight">{card.value}</p>
-						<p className="mt-2 text-sm italic text-slate-500">{card.subtitle}</p>
+					<article key={card.title} className="h-full rounded-xl border border-[#bfbfbf] bg-[#f3f3f3] p-5 text-center shadow-sm">
+						<div className="flex h-full flex-col items-center justify-center">
+							<p className="text-lg font-semibold leading-tight">{card.title}</p>
+							<p className="mt-3 text-4xl font-bold leading-tight">{card.value}</p>
+							<p className="mt-2 text-sm italic text-slate-500">{card.subtitle}</p>
+						</div>
 					</article>
 				))}
 
 				<article className="rounded-xl border border-[#bfbfbf] bg-[#f3f3f3] p-5 shadow-sm">
-					<h3 className="text-3xl font-semibold leading-tight">Top 10 Most Resistant Bacteria</h3>
+					<h3 className="text-2xl font-semibold leading-tight">Top 10 Most Resistant Bacteria</h3>
 					<p className="mt-1 text-center text-base text-slate-600">In {provinceName} · Last 12 Months</p>
 
 					<div className="mt-4 grid grid-cols-[170px_1fr] gap-4">
@@ -67,13 +69,13 @@ function CityDashboard({ cityName, provinceName, onBackToNational }) {
 							</div>
 						</div>
 
-						<div className="text-sm">
+						<div className="text-xs">
 							<div className="grid grid-cols-[1fr_auto] border-b border-[#d6d6d6] pb-1 text-slate-500">
 								<span>Label</span>
 								<span>%</span>
 							</div>
 							{bacteriaRows.map((row, index) => (
-								<div key={row.name} className="mt-2 grid grid-cols-[1fr_auto] items-center gap-3">
+								<div key={row.name} className="mt-1.5 grid grid-cols-[1fr_auto] items-start gap-3 leading-snug">
 									<span className="flex items-center gap-2 text-slate-700">
 										<span className={`h-3 w-3 rounded-full ${['bg-[#c5afe1]', 'bg-[#e5b8bb]', 'bg-[#d798a5]', 'bg-[#f2b74e]', 'bg-[#eca10f]', 'bg-[#cc9ce0]'][index]}`} />
 										{row.name}

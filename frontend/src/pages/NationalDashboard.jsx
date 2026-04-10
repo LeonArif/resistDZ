@@ -109,6 +109,18 @@ function NationalDashboard({
 					<p className="mt-2 text-center text-sm text-slate-600">[Zoom In +] [Zoom Out -] [Reset View] [Fullscreen]</p>
 
 					  <div className="relative mt-5 h-90 rounded-2xl bg-[radial-gradient(circle_at_top_left,#f8e4c8_0,#efe9e1_35%,#e2d7d7_100%)] p-4">
+						<svg viewBox="0 0 1000 380" className="absolute inset-x-6 bottom-6 top-10 h-auto w-[calc(100%-3rem)] opacity-95">
+							<path d="M 40 145 L 84 145 L 112 160 L 128 180 L 146 190 L 162 210 L 184 230 L 206 252 L 228 272 L 248 292 L 260 314 L 242 324 L 208 314 L 174 286 L 142 260 L 120 234 L 92 210 L 74 188 L 52 172 L 38 154 Z" fill="#d39b4a" stroke="#bc8639" strokeWidth="3"/>
+							<path d="M 248 286 L 282 288 L 322 296 L 362 296 L 402 292 L 444 292 L 484 302 L 520 316 L 560 322 L 598 328 L 596 342 L 556 346 L 520 340 L 486 332 L 452 320 L 414 314 L 374 314 L 332 320 L 292 316 L 254 310 Z" fill="#cb6122" stroke="#a94b17" strokeWidth="3"/>
+							<path d="M 284 124 L 338 112 L 392 104 L 448 92 L 506 94 L 550 108 L 574 132 L 566 164 L 532 186 L 478 186 L 424 196 L 374 206 L 332 202 L 296 178 L 280 150 Z" fill="#e78ab8" stroke="#c86d9c" strokeWidth="3"/>
+							<path d="M 556 186 L 588 176 L 620 166 L 656 150 L 692 142 L 722 154 L 708 178 L 680 194 L 642 208 L 606 216 L 570 214 Z" fill="#b86ea2" stroke="#9f5d8b" strokeWidth="3"/>
+							<path d="M 614 226 L 644 210 L 674 216 L 662 248 L 638 266 L 612 254 Z" fill="#a47bc6" stroke="#8d67ad" strokeWidth="3"/>
+							<path d="M 700 192 L 734 184 L 754 196 L 742 224 L 712 230 Z" fill="#9a7f7f" stroke="#836b6b" strokeWidth="3"/>
+							<path d="M 764 186 L 812 172 L 858 170 L 904 182 L 944 204 L 952 236 L 920 254 L 876 256 L 834 260 L 792 246 L 766 220 Z" fill="#ab8a8a" stroke="#8f7676" strokeWidth="3"/>
+							<path d="M 500 334 L 526 334 L 540 346 L 522 360 L 498 356 Z" fill="#7f4a2a" stroke="#653b22" strokeWidth="2"/>
+							<path d="M 556 340 L 586 338 L 612 348 L 590 366 L 558 362 Z" fill="#6d4027" stroke="#573220" strokeWidth="2"/>
+							<path d="M 622 346 L 656 344 L 686 352 L 666 370 L 628 366 Z" fill="#6d4027" stroke="#573220" strokeWidth="2"/>
+						</svg>
 						<div className="absolute left-4 top-3 text-xs text-slate-500">Klik titik provinsi untuk melihat detail.</div>
 						{provincePoints.map((province) => (
 							<button
@@ -167,8 +179,8 @@ function NationalDashboard({
 			</section>
 
 			{isCityModalOpen && (
-				<div className="fixed inset-0 z-30 grid place-content-center bg-black/25 p-4">
-					  <div className="w-full max-w-140 rounded-3xl bg-[#efefef] p-8 shadow-xl">
+				<div className="fixed inset-0 z-30 flex items-center justify-center bg-black/25 p-4">
+					  <div className="w-[92vw] max-w-150 rounded-3xl bg-[#efefef] p-8 shadow-xl">
 						<h3 className="text-center text-3xl font-semibold">Select City</h3>
 						<p className="mt-2 text-center text-base text-slate-600">View detailed AMR insights by city</p>
 

@@ -21,6 +21,7 @@ function Simulation({
 
 	const tone = hasPrediction ? getTone(predictionRaw) : 'susceptible'
 	const predictionLabel = hasPrediction ? predictionRaw : 'Low Resistance'
+	const showEmptyDefault = !isLoading && !hasPrediction
 
 	const toneStyle = {
 		susceptible: {
@@ -194,21 +195,31 @@ function Simulation({
 					</>
 				) : (
 					<>
-						<article className={`rounded-xl p-4 shadow-sm ${activeTone.banner}`}>
-							{/* <p className="text-2xl">☺</p> */}
-							<p className="text-[1.5rem] font-semibold leading-tight">{predictionLabel}</p>
-							<p className="text-sm text-white/80">Prediction Result</p>
-						</article>
+						{showEmptyDefault ? (
+							<article className="rounded-xl border border-[#bfbfbf] bg-[#e0e0e0] p-4 shadow-sm">
+								<div className="h-8 w-44 rounded bg-[#c9c9c9]" />
+								<div className="mt-2 h-4 w-28 rounded bg-[#d1d1d1]" />
+							</article>
+						) : (
+							<article className={`rounded-xl p-4 shadow-sm ${activeTone.banner}`}>
+								<p className="text-[1.5rem] font-semibold leading-tight">{predictionLabel}</p>
+								<p className="text-sm text-white/80">Prediction Result</p>
+							</article>
+						)}
 
 						<div className="grid flex-1 gap-3 md:grid-cols-[minmax(0,1fr)_230px] md:items-stretch">
-							<article className={`h-full rounded-xl border-4 bg-[#f3f3f3] p-5 text-center ${activeTone.outline} flex flex-col items-center justify-center`}>
-								<div className={`mx-auto grid h-16 w-16 place-content-center rounded-full border-2 text-3xl ${activeTone.iconColor}`}>
-									{activeTone.icon}
-								</div>
-								<p className={`mx-auto mt-4 max-w-70 text-xl font-semibold leading-normal ${activeTone.textColor}`}>
-									{activeTone.message}
-								</p>
-							</article>
+							{showEmptyDefault ? (
+								<article className="h-full rounded-xl border border-[#bfbfbf] bg-[#e0e0e0] p-6 shadow-sm" />
+							) : (
+								<article className={`h-full rounded-xl border-4 bg-[#f3f3f3] p-5 text-center ${activeTone.outline} flex flex-col items-center justify-center`}>
+									<div className={`mx-auto grid h-16 w-16 place-content-center rounded-full border-2 text-3xl ${activeTone.iconColor}`}>
+										{activeTone.icon}
+									</div>
+									<p className={`mx-auto mt-4 max-w-70 text-xl font-semibold leading-normal ${activeTone.textColor}`}>
+										{activeTone.message}
+									</p>
+								</article>
+							)}
 
 							<div className="grid gap-3 md:grid-rows-2">
 								<article className="h-full rounded-xl border border-[#bfbfbf] bg-[#f3f3f3] p-4 shadow-sm">

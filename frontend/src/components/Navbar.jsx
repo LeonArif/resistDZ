@@ -13,8 +13,8 @@ function Navbar({ activeView, onChangeView }) {
 						</div>
 					</div>
 					<div className="text-right">
-						<p className="text-base font-semibold">User</p>
-						<p className="text-sm text-slate-700">RS Santo Borromeus</p>
+						<p className="text-lg font-semibold">User</p>
+						<p className="text-sm text-slate-700">RS Kaggle Ducklings</p>
 					</div>
 				</div>
 			</header>
