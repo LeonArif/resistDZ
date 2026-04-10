@@ -67,6 +67,18 @@ Cek endpoint setelah deploy:
 - `/schema`
 - `/predict`
 
+Kalau frontend dan backend deploy di project Vercel yang berbeda, set environment variable di project frontend:
+
+```text
+VITE_API_BASE_URL=https://<domain-backend-vercel-kamu>
+```
+
+Contoh:
+
+```text
+VITE_API_BASE_URL=https://resist-dz-9r7m.vercel.app
+```
+
 ## 2) Jalankan Frontend Vite
 
 Masuk folder frontend:

@@ -21,11 +21,22 @@ const FALLBACK_CLIMATE = {
 
 const CURRENT_YEAR = new Date().getFullYear()
 
+function resolveApiBaseUrl() {
+  const envUrl = import.meta.env.VITE_API_BASE_URL?.trim()
+  if (envUrl) {
+    return envUrl.replace(/\/+$/, '')
+  }
+
+  // In production, default to same-origin API to avoid localhost fetch failures.
+  if (import.meta.env.PROD) {
+    return window.location.origin.replace(/\/+$/, '')
+  }
+
+  return 'http://127.0.0.1:5000'
+}
+
 function App() {
-  const apiBaseUrl = useMemo(
-    () => import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:5000',
-    []
-  )
+  const apiBaseUrl = useMemo(() => resolveApiBaseUrl(), [])
 
   const [dropdownOptions, setDropdownOptions] = useState(FALLBACK_OPTIONS)
   const [climateMap, setClimateMap] = useState(FALLBACK_CLIMATE)
