@@ -18,6 +18,11 @@ MODEL_CANDIDATES = [
     PROJECT_ROOT / "amr_xgb_pipeline.joblib",
     PROJECT_ROOT.parent / "amr_xgb_pipeline.joblib",
 ]
+DATASET_CANDIDATES = [
+    BASE_DIR / "dataset" / "dataset_v2_full_features.csv",
+    PROJECT_ROOT / "dataset_v2_full_features.csv",
+    PROJECT_ROOT.parent / "dataset_v2_full_features.csv",
+]
 LABEL_CANDIDATES = [
     BASE_DIR / "models" / "amr_label_classes.npy",
     PROJECT_ROOT / "amr_label_classes.npy",
@@ -37,6 +42,7 @@ LABEL_PATH = os.getenv("LABEL_PATH")
 
 resolved_model_path = Path(MODEL_PATH).resolve() if MODEL_PATH else _find_existing_file(MODEL_CANDIDATES)
 resolved_label_path = Path(LABEL_PATH).resolve() if LABEL_PATH else _find_existing_file(LABEL_CANDIDATES)
+resolved_dataset_path = _find_existing_file(DATASET_CANDIDATES)
 
 if not resolved_model_path:
     raise FileNotFoundError(
@@ -51,6 +57,62 @@ if resolved_label_path:
 else:
     label_classes = None
 
+
+def _build_dataset_options() -> dict[str, Any]:
+    if not resolved_dataset_path:
+        return {"options": {}, "climate_by_continent": {}}
+
+    try:
+        df = pd.read_csv(resolved_dataset_path)
+    except Exception:
+        return {"options": {}, "climate_by_continent": {}}
+
+    categorical_columns = [
+        "Pathogen_Name",
+        "Antibiotic_Tested",
+        "Continent",
+        "Infection_Source",
+        "Patient_Age_Group",
+        "Ward_Type",
+    ]
+
+    options: dict[str, list[str]] = {}
+    for column in categorical_columns:
+        if column not in df.columns:
+            options[column] = []
+            continue
+
+        values = (
+            df[column]
+            .dropna()
+            .astype(str)
+            .str.strip()
+            .replace("", np.nan)
+            .dropna()
+            .unique()
+            .tolist()
+        )
+        options[column] = sorted(values)
+
+    climate_by_continent: dict[str, dict[str, float]] = {}
+    if {"Continent", "Avg_Temp_Weekly", "Humidity_Pct"}.issubset(df.columns):
+        grouped = (
+            df[["Continent", "Avg_Temp_Weekly", "Humidity_Pct"]]
+            .dropna(subset=["Continent"])
+            .groupby("Continent", as_index=True)
+            .agg({"Avg_Temp_Weekly": "mean", "Humidity_Pct": "mean"})
+        )
+        for continent, row in grouped.iterrows():
+            climate_by_continent[str(continent)] = {
+                "avgTempWeekly": round(float(row["Avg_Temp_Weekly"]), 2),
+                "humidityPct": round(float(row["Humidity_Pct"]), 2),
+            }
+
+    return {"options": options, "climate_by_continent": climate_by_continent}
+
+
+DATASET_LOOKUP = _build_dataset_options()
+
 app = Flask(__name__)
 CORS(app)
 
@@ -62,6 +124,18 @@ def health() -> Any:
             "status": "ok",
             "model_path": str(resolved_model_path),
             "label_path": str(resolved_label_path) if resolved_label_path else None,
+            "dataset_path": str(resolved_dataset_path) if resolved_dataset_path else None,
+        }
+    )
+
+
+@app.get("/options")
+def options() -> Any:
+    return jsonify(
+        {
+            "dataset_path": str(resolved_dataset_path) if resolved_dataset_path else None,
+            "options": DATASET_LOOKUP["options"],
+            "climateByContinent": DATASET_LOOKUP["climate_by_continent"],
         }
     )
 

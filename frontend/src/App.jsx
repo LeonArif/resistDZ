@@ -1,16 +1,16 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import './App.css'
 
-const CONTINENT_OPTIONS = [
-  'Asia',
-  'Europe',
-  'Latin America',
-  'North America',
-  'Africa / Middle East',
-  'Oceania',
-]
+const FALLBACK_OPTIONS = {
+  Pathogen_Name: [],
+  Antibiotic_Tested: [],
+  Continent: ['Asia', 'Europe', 'Latin America', 'North America', 'Africa / Middle East', 'Oceania'],
+  Infection_Source: [],
+  Patient_Age_Group: [],
+  Ward_Type: [],
+}
 
-const CONTINENT_CLIMATE = {
+const FALLBACK_CLIMATE = {
   Asia: { avgTempWeekly: 25.0, humidityPct: 76 },
   Europe: { avgTempWeekly: 14.0, humidityPct: 68 },
   'Latin America': { avgTempWeekly: 24.0, humidityPct: 76 },
@@ -27,18 +27,21 @@ function App() {
     []
   )
 
+  const [dropdownOptions, setDropdownOptions] = useState(FALLBACK_OPTIONS)
+  const [climateMap, setClimateMap] = useState(FALLBACK_CLIMATE)
+
   const [formData, setFormData] = useState({
     Pathogen_Name: '',
     Antibiotic_Tested: '',
     MIC_Value: '',
-    Continent: 'Asia',
+    Continent: FALLBACK_OPTIONS.Continent[0],
     Infection_Source: '',
     Patient_Age_Group: '',
     Ward_Type: '',
     Sanitation_Index: '',
     Year: CURRENT_YEAR,
-    Avg_Temp_Weekly: CONTINENT_CLIMATE.Asia.avgTempWeekly,
-    Humidity_Pct: CONTINENT_CLIMATE.Asia.humidityPct,
+    Avg_Temp_Weekly: FALLBACK_CLIMATE.Asia.avgTempWeekly,
+    Humidity_Pct: FALLBACK_CLIMATE.Asia.humidityPct,
   })
   const [health, setHealth] = useState(null)
   const [result, setResult] = useState(null)
@@ -53,7 +56,7 @@ function App() {
   }
 
   const handleContinentChange = (continent) => {
-    const climate = CONTINENT_CLIMATE[continent]
+    const climate = climateMap[continent] || FALLBACK_CLIMATE[continent]
     setFormData((prev) => ({
       ...prev,
       Continent: continent,
@@ -62,6 +65,52 @@ function App() {
       Year: CURRENT_YEAR,
     }))
   }
+
+  useEffect(() => {
+    const loadOptions = async () => {
+      try {
+        const response = await fetch(`${apiBaseUrl}/options`)
+        const data = await response.json()
+        if (!response.ok) {
+          return
+        }
+
+        const nextOptions = {
+          Pathogen_Name: data.options?.Pathogen_Name || [],
+          Antibiotic_Tested: data.options?.Antibiotic_Tested || [],
+          Continent: data.options?.Continent?.length ? data.options.Continent : FALLBACK_OPTIONS.Continent,
+          Infection_Source: data.options?.Infection_Source || [],
+          Patient_Age_Group: data.options?.Patient_Age_Group || [],
+          Ward_Type: data.options?.Ward_Type || [],
+        }
+        const nextClimateMap = {
+          ...FALLBACK_CLIMATE,
+          ...(data.climateByContinent || {}),
+        }
+
+        setDropdownOptions(nextOptions)
+        setClimateMap(nextClimateMap)
+
+        setFormData((prev) => {
+          const continent = nextOptions.Continent.includes(prev.Continent)
+            ? prev.Continent
+            : nextOptions.Continent[0]
+          const climate = nextClimateMap[continent] || FALLBACK_CLIMATE.Asia
+
+          return {
+            ...prev,
+            Continent: continent,
+            Avg_Temp_Weekly: climate.avgTempWeekly,
+            Humidity_Pct: climate.humidityPct,
+          }
+        })
+      } catch {
+        // Use fallback options when endpoint is unavailable.
+      }
+    }
+
+    loadOptions()
+  }, [apiBaseUrl])
 
   const validateForm = () => {
     const requiredFields = [
@@ -163,7 +212,7 @@ function App() {
 
       <section className="panel">
         <h2>2) Input Data Prediksi</h2>
-        <p className="hint">Year otomatis dari tahun sekarang, Avg_Temp_Weekly dan Humidity_Pct otomatis dari Continent.</p>
+        <p className="hint">Hanya Continent dan Patient_Age_Group yang dropdown. Year otomatis dari tahun sekarang, Avg_Temp_Weekly dan Humidity_Pct otomatis dari Continent.</p>
 
         <div className="form-grid">
           <label>
@@ -203,7 +252,7 @@ function App() {
               value={formData.Continent}
               onChange={(event) => handleContinentChange(event.target.value)}
             >
-              {CONTINENT_OPTIONS.map((continent) => (
+              {dropdownOptions.Continent.map((continent) => (
                 <option key={continent} value={continent}>
                   {continent}
                 </option>
@@ -223,12 +272,17 @@ function App() {
 
           <label>
             Patient_Age_Group
-            <input
-              type="text"
+            <select
               value={formData.Patient_Age_Group}
               onChange={(event) => updateField('Patient_Age_Group', event.target.value)}
-              placeholder="Contoh: 31 - 60"
-            />
+            >
+              <option value="">Pilih Age Group</option>
+              {dropdownOptions.Patient_Age_Group.map((item) => (
+                <option key={item} value={item}>
+                  {item}
+                </option>
+              ))}
+            </select>
           </label>
 
           <label>
