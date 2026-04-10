@@ -25,8 +25,10 @@ MODEL_CANDIDATES = [
 ]
 DATASET_CANDIDATES = [
     BASE_DIR / "dataset" / "dataset_v2_full_features.csv",
+    BASE_DIR / "dataset_v2_full_features.csv",
     PROJECT_ROOT / "dataset_v2_full_features.csv",
     PROJECT_ROOT.parent / "dataset_v2_full_features.csv",
+    PROJECT_ROOT.parent.parent / "dataset_v2_full_features.csv",
 ]
 LABEL_CANDIDATES = [
     BASE_DIR / "models" / "amr_label_classes.npy",
@@ -128,6 +130,30 @@ def _build_dataset_options() -> dict[str, Any]:
 
 DATASET_LOOKUP = _build_dataset_options()
 
+FALLBACK_OPTIONS = {
+    "Pathogen_Name": [],
+    "Antibiotic_Tested": [],
+    "Continent": [
+        "Asia",
+        "Europe",
+        "Latin America",
+        "North America",
+        "Africa / Middle East",
+        "Oceania",
+    ],
+    "Infection_Source": [],
+    "Patient_Age_Group": ["0 - 17", "18 - 30", "31 - 60", "61+"],
+    "Ward_Type": [],
+}
+
+
+def _merge_options_with_fallback(options: dict[str, list[str]]) -> dict[str, list[str]]:
+    merged: dict[str, list[str]] = {}
+    for key, fallback_values in FALLBACK_OPTIONS.items():
+        values = options.get(key, [])
+        merged[key] = values if values else fallback_values
+    return merged
+
 app = Flask(__name__)
 CORS(app)
 
@@ -158,10 +184,11 @@ def health() -> Any:
 
 @app.get("/options")
 def options() -> Any:
+    merged_options = _merge_options_with_fallback(DATASET_LOOKUP["options"])
     return jsonify(
         {
             "dataset_path": str(resolved_dataset_path) if resolved_dataset_path else None,
-            "options": DATASET_LOOKUP["options"],
+            "options": merged_options,
             "climateByContinent": DATASET_LOOKUP["climate_by_continent"],
         }
     )

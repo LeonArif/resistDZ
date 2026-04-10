@@ -6,7 +6,7 @@ const FALLBACK_OPTIONS = {
   Antibiotic_Tested: [],
   Continent: ['Asia', 'Europe', 'Latin America', 'North America', 'Africa / Middle East', 'Oceania'],
   Infection_Source: [],
-  Patient_Age_Group: [],
+  Patient_Age_Group: ['0 - 17', '18 - 30', '31 - 60', '61+'],
   Ward_Type: [],
 }
 
