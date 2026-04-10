@@ -22,13 +22,23 @@ const FALLBACK_CLIMATE = {
 const CURRENT_YEAR = new Date().getFullYear()
 const DEFAULT_PROD_API_URL = 'https://resist-dz-9r7m.vercel.app'
 
+function isLocalUrl(url) {
+  try {
+    const parsed = new URL(url)
+    const host = parsed.hostname.toLowerCase()
+    return host === 'localhost' || host === '127.0.0.1' || host === '0.0.0.0'
+  } catch {
+    return false
+  }
+}
+
 function resolveApiBaseUrl() {
   const envUrl = import.meta.env.VITE_API_BASE_URL?.trim()
-  if (envUrl) {
+  if (envUrl && !(import.meta.env.PROD && isLocalUrl(envUrl))) {
     return envUrl.replace(/\/+$/, '')
   }
 
-  // In production, default to deployed backend URL.
+  // In production, force deployed backend URL when env is missing or local.
   if (import.meta.env.PROD) {
     return DEFAULT_PROD_API_URL
   }
