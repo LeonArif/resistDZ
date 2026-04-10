@@ -20,6 +20,7 @@ const FALLBACK_CLIMATE = {
 }
 
 const CURRENT_YEAR = new Date().getFullYear()
+const DEFAULT_PROD_API_URL = 'https://resist-dz-9r7m.vercel.app'
 
 function resolveApiBaseUrl() {
   const envUrl = import.meta.env.VITE_API_BASE_URL?.trim()
@@ -27,9 +28,9 @@ function resolveApiBaseUrl() {
     return envUrl.replace(/\/+$/, '')
   }
 
-  // In production, default to same-origin API to avoid localhost fetch failures.
+  // In production, default to deployed backend URL.
   if (import.meta.env.PROD) {
-    return window.location.origin.replace(/\/+$/, '')
+    return DEFAULT_PROD_API_URL
   }
 
   return 'http://127.0.0.1:5000'
