@@ -34,16 +34,12 @@ function isLocalUrl(url) {
 
 function resolveApiBaseUrl() {
   const envUrl = import.meta.env.VITE_API_BASE_URL?.trim()
-  if (envUrl && !(import.meta.env.PROD && isLocalUrl(envUrl))) {
+  if (envUrl && !isLocalUrl(envUrl)) {
     return envUrl.replace(/\/+$/, '')
   }
 
-  // In production, force deployed backend URL when env is missing or local.
-  if (import.meta.env.PROD) {
-    return DEFAULT_PROD_API_URL
-  }
-
-  return 'https://resist-dz-9r7m.vercel.app'
+  // Always prefer deployed backend URL when env is missing/invalid/local.
+  return DEFAULT_PROD_API_URL
 }
 
 function App() {
