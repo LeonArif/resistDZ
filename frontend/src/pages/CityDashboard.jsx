@@ -1,5 +1,5 @@
 const summaryCards = [
-	{ title: 'Participating Hospitals', value: '64', subtitle: 'Reporting AMR' },
+	{ title: 'Hospitals', value: '64', subtitle: 'Reporting AMR' },
 	{ title: 'Detected Cases', value: '4.097', subtitle: 'Reported cases' },
 	{ title: 'AMR Rate', value: '4.097', subtitle: 'City-level resistance rate' },
 ]
@@ -48,11 +48,13 @@ function CityDashboard({ cityName, provinceName, onBackToNational }) {
 
 			<div className="grid items-stretch gap-4 md:grid-cols-3 lg:grid-cols-[1fr_1fr_1fr_1.85fr]">
 				{summaryCards.map((card) => (
-					<article key={card.title} className="h-full rounded-xl border border-[#bfbfbf] bg-[#f3f3f3] p-5 text-center shadow-sm">
-						<div className="flex h-full flex-col items-center justify-center">
-							<p className="text-lg font-semibold leading-tight">{card.title}</p>
-							<p className="mt-3 text-4xl font-bold leading-tight">{card.value}</p>
-							<p className="mt-2 text-sm italic text-slate-500">{card.subtitle}</p>
+					<article key={card.title} className="h-full rounded-xl border border-[#bfbfbf] bg-[#f3f3f3] p-5 shadow-sm">
+						<div className="flex h-full flex-col">
+							<p className="text-center text-2xl font-semibold leading-tight">{card.title}</p>
+							<div className="flex flex-1 flex-col items-center justify-center text-center">
+								<p className="text-4xl font-bold leading-tight">{card.value}</p>
+								<p className="mt-2 text-sm italic text-slate-500">{card.subtitle}</p>
+							</div>
 						</div>
 					</article>
 				))}
@@ -88,8 +90,8 @@ function CityDashboard({ cityName, provinceName, onBackToNational }) {
 				</article>
 			</div>
 
-				<div className="mt-5 grid items-start gap-4 lg:grid-cols-[1.65fr_1fr]">
-				<article className="rounded-xl border border-[#bfbfbf] bg-[#f3f3f3] p-6 shadow-sm">
+				<div className="mt-5 grid items-stretch gap-4 lg:grid-cols-[1.65fr_1fr]">
+				<article className="h-full rounded-xl border border-[#bfbfbf] bg-[#f3f3f3] p-6 shadow-sm">
 						<h3 className="text-2xl font-semibold leading-tight">Top 3 Most Effective Antibiotics</h3>
 					<p className="mt-2 text-base text-slate-600">{cityName} · Last 12 Months</p>
 
@@ -106,7 +108,7 @@ function CityDashboard({ cityName, provinceName, onBackToNational }) {
 					</div>
 				</article>
 
-				<article className="rounded-xl border border-[#bfbfbf] bg-[#f3f3f3] p-5 shadow-sm">
+				<article className="h-full rounded-xl border border-[#bfbfbf] bg-[#f3f3f3] p-5 shadow-sm">
 					<h3 className="text-xl font-semibold">Quick Summary</h3>
 					<ul className="mt-4 space-y-2 text-base text-slate-700">
 						<li>• AMR rate naik 2.1% dibanding kuartal lalu.</li>
