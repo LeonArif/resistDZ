@@ -123,6 +123,17 @@ app = Flask(__name__)
 CORS(app)
 
 
+@app.get("/")
+def index() -> Any:
+    return jsonify(
+        {
+            "status": "ok",
+            "message": "resistDZ backend is running",
+            "endpoints": ["/health", "/options", "/schema", "/predict"],
+        }
+    )
+
+
 @app.get("/health")
 def health() -> Any:
     return jsonify(
