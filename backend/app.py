@@ -14,6 +14,12 @@ BASE_DIR = Path(__file__).resolve().parent
 PROJECT_ROOT = BASE_DIR.parent
 
 MODEL_CANDIDATES = [
+    BASE_DIR / "models" / "amr_hgb_pipeline.joblib",
+    PROJECT_ROOT / "amr_hgb_pipeline.joblib",
+    PROJECT_ROOT.parent / "amr_hgb_pipeline.joblib",
+    BASE_DIR / "models" / "amr_light_pipeline.joblib",
+    PROJECT_ROOT / "amr_light_pipeline.joblib",
+    PROJECT_ROOT.parent / "amr_light_pipeline.joblib",
     BASE_DIR / "models" / "amr_xgb_pipeline.joblib",
     PROJECT_ROOT / "amr_xgb_pipeline.joblib",
     PROJECT_ROOT.parent / "amr_xgb_pipeline.joblib",
@@ -46,7 +52,7 @@ resolved_dataset_path = _find_existing_file(DATASET_CANDIDATES)
 
 if not resolved_model_path:
     raise FileNotFoundError(
-        "Model file tidak ditemukan. Taruh amr_xgb_pipeline.joblib di backend/models "
+        "Model file tidak ditemukan. Taruh amr_hgb_pipeline.joblib atau amr_light_pipeline.joblib di backend/models "
         "atau set environment variable MODEL_PATH."
     )
 
